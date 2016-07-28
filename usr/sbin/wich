@@ -30,48 +30,48 @@ function usage(){
 }
 
 function manm(){
-	sudo /sbin/ifconfig $2 down;
-	sudo /usr/sbin/macspoof -r $2;
-	sudo /sbin/iwconfig $2 mode managed;
-	sudo /sbin/ifconfig $2 up;
+	sudo /sbin/ifconfig $1 down;
+	sudo /usr/sbin/macspoof -r $1;
+	sudo /sbin/iwconfig $1 mode managed;
+	sudo /sbin/ifconfig $1 up;
 	sudo service network-manager restart;
 	tput bold;
-	echo "Managed mode enabled on $2"
+	echo "Managed mode enabled on $1"
 }
 
 function monm(){
-	sudo /sbin/ifconfig $2 down;
-	sudo /usr/sbin/macspoof -r $2;
-	sudo /sbin/iwconfig $2 mode monitor:
-	sudo /sbin/ifconfig $2 up;
+	sudo /sbin/ifconfig $1 down;
+	sudo /usr/sbin/macspoof -r $1;
+	sudo /sbin/iwconfig $1 mode monitor:
+	sudo /sbin/ifconfig $1 up;
 	sudo service network-manager stop
 }
 
 function mas(){
-	sudo /usr/sbin/hostap --daemon $2 $3 $4 $5 $6 $7 $8 $9
+	sudo /usr/sbin/hostap --daemon $1 $2 $3 $4 $5 $6 $7 $8 $9
 }
 
 function masstop(){
-	sudo /usr/sbin/hostap --stop $2
+	sudo /usr/sbin/hostap --stop $1
 }
 
 function creds(){
-	sudo /usr/sbin/creds $2 $3 $4 $5 $6 $7 $8 $9
+	sudo /usr/sbin/creds $1 $2 $3 $4 $5 $6 $7 $8 $9
 }
 
 function wifijam(){
-	sudo /usr/sbin/wifijam $2 $3 $4 $5 $6 $7 $8 $9
+	sudo /usr/sbin/wifijam $1 $2 $3 $4 $5 $6 $7 $8 $9
 }
 
 case $1 in
 	-h|--help) usage; exit 1;;
-	-1|--man) manm; exit 1;;
-	-2|--mon) monm; exit 1;;
-	-3|--host) mas; exit 1;;
-	-4|--stop) masstop; exit 1;;
-	-5|--creds) creds; exit 1;;
-	-6|--wifijam) wifijam; exit 1;;
-	-7|--cread) cread;exit 1;;
+	-1|--man) manm $2 $3 $4 $5 $6 $7 $8 $9; exit 1;;
+	-2|--mon) monm $2 $3 $4 $5 $6 $7 $8 $9; exit 1;;
+	-3|--host) mas $2 $3 $4 $5 $6 $7 $8 $9; exit 1;;
+	-4|--stop) masstop $2 $3 $4 $5 $6 $7 $8 $9; exit 1;;
+	-5|--creds) creds $2 $3 $4 $5 $6 $7 $8 $9; exit 1;;
+	-6|--wifijam) wifijam $2 $3 $4 $5 $6 $7 $8 $9; exit 1;;
+	-7|--cread) cread $2 $3 $4 $5 $6 $7 $8 $9;exit 1;;
 	*) echo "Uknown command '$1' type 'wich --help' for help!"; exit 125;;
 esac
 
