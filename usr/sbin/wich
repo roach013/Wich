@@ -62,7 +62,7 @@ function wifijam(){
 }
 
 case $1 in
-	--help) usage; exit 1;;
+	-h|--help) usage; exit 1;;
 	-1|--man) manm; exit 1;;
 	-2|--mon) monm; exit 1;;
 	-3|--host) mas; exit 1;;
