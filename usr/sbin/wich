@@ -1,0 +1,76 @@
+#!/bin/bash
+
+#Wich Script Created By Roach Reznov!
+
+# Additional Requirements
+#  bash: To run this script
+#  hostapd: To host a wireless hotspot
+#  haveged: To collect entropy and feed into random pool
+
+function usage(){
+	echo "Wich script by Roach"
+	echo "	Usage wich [OPTIONS] {PERAMETERS}"
+	echo "		-1 or --man :	Put Given Interface Into Managed Mode"
+	echo "		-2 or --mon :	Put Given Interface Into Monitor Mode"
+	echo "		-3 or --host :	Start Hosted AP ('Wich --mas --help' For More Info)"
+	echo "		-4 or --stop :	Stop Hosted AP ('wich --mas --help' For More Info)"
+	echo "		-5 or --creds : To Capture Credentials On LAN ('wich --creds --help' For More Info)"
+	echo "		-6 or --wifijam : To Jam All Wifi Signals In Range ('wich --wifijam --help' For More Info)"
+	echo "		-7 or --cread :	Recontruct Information From Pcap Dump ('wich --cread --help' For More Info)"
+	echo "		-h or --help :	To Show This Help Test"
+	echo "	Examples :"
+	echo "		To put into managed mode ...wich -1 'interface name'"
+	echo "		To put into monitor mode ...wich -2 'interface name'"
+	echo "		To put into master mode ...wich -3 'interface name' 'interface name' 'essid' 'password'"
+	echo "		To stop hosted AP ...wich -4 'hosted interface name'"
+	echo "		To capture credentials ...wich -5 -i 'interface name'"
+	echo "		To jam wifi networks ...wich -6 -i 'interface name'"
+}
+
+function manm(){
+	sudo /sbin/ifconfig $2 down;
+	sudo /usr/sbin/macspoof -r $2;
+	sudo /sbin/iwconfig $2 mode managed;
+	sudo /sbin/ifconfig $2 up;
+	sudo service network-manager restart;
+	tput bold;
+	echo "Managed mode enabled on $2"
+}
+
+function monm(){
+	sudo /sbin/ifconfig $2 down;
+	sudo /usr/sbin/macspoof -r $2;
+	sudo /sbin/iwconfig $2 mode monitor:
+	sudo /sbin/ifconfig $2 up;
+	sudo service network-manager stop
+}
+
+function mas(){
+	sudo /usr/sbin/hostap --daemon $2 $3 $4 $5 $6 $7 $8 $9
+}
+
+function masstop(){
+	sudo /usr/sbin/hostap --stop $2
+}
+
+function creds(){
+	sudo /usr/sbin/creds $2 $3 $4 $5 $6 $7 $8 $9
+}
+
+function wifijam(){
+	sudo /usr/sbin/wifijam $2 $3 $4 $5 $6 $7 $8 $9
+}
+
+case $1 in
+	--help) usage; exit 1;;
+	-1|--man) manm; exit 1;;
+	-2|--mon) monm; exit 1;;
+	-3|--host) mas; exit 1;;
+	-4|--stop) masstop; exit 1;;
+	-5|--creds) creds; exit 1;;
+	-6|--wifijam) wifijam; exit 1;;
+	-7|--cread) cread;exit 1;;
+	*) echo "Uknown command '$1' type 'wich --help' for help!"; exit 125;;
+esac
+
+#DONE! :D

@@ -1,0 +1,8 @@
+Package: wich
+Version: 0.2
+Section: base
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>=2.4), dpkg (>=1.15.4), hostapd, hostap-utils, net-tools, perl, python2.7, bash
+Maintainer: Roach Reznov <qureshi013@hotmail.com>
+Description: Script To Manipulate Network Interface And Some Other Stuff Too..
