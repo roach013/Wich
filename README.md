@@ -1,6 +1,8 @@
 # Wich
 Linux Networking Scripts And To Do Some Cool Stuffs Too :D
 
+I Created This Project To Simplify Wireless LAN Security Auditing.
+
 Functionalities:
 
   ~~Turn Wireless Managed Interface into Monitor Mode and vise-versa.
