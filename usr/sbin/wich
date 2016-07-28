@@ -6,6 +6,8 @@
 #  bash: To run this script
 #  hostapd: To host a wireless hotspot
 #  haveged: To collect entropy and feed into random pool
+#  net-tools: You probably have them installed
+
 
 function usage(){
 	echo "Wich script by Roach"
