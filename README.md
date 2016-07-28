@@ -1,9 +1,9 @@
 # Wich
-Linux Networking Scripts And To Do Some Cool Stuffs Too :D
+## Linux Networking Scripts And To Do Some Cool Stuffs Too :D
 
-I Created This Project To Simplify Wireless LAN Security Auditing.
+ ~~I Created This Project To Simplify Wireless LAN Security Auditing.
 
-Functionalities:
+## Functionalities:
 
   ~~Turn Wireless Managed Interface into Monitor Mode and vise-versa.
 
@@ -16,7 +16,7 @@ Functionalities:
   ~~Recontruct Information From Pcap Dump 
 
 
-Installation:
+## Installation:
 
   ~~on Debian based distro:
   
@@ -33,12 +33,12 @@ Installation:
     sudo chmod +x ./install.sh
     sudo sh ./install.sh
     
-Uninstallation:
+## Uninstallation:
 
     cd Wich/
     sudo ./install.sh --uninstall
 
-Usage of Wich by Roach Reznov:
+## Usage of Wich by Roach Reznov:
 
 	Usage wich [OPTIONS] {PERAMETERS}
 		-1 or --man :	Put Given Interface Into Managed Mode
@@ -57,10 +57,10 @@ Usage of Wich by Roach Reznov:
 		To capture credentials ...wich -5 -i 'interface name'
 		To jam wifi networks ...wich -6 -i 'interface name'
 		
-Thanks:
+### Thanks:
 
 ~~To https://github.com/brendangregg/Chaosreader for Chaosreader
 
 ~~To https://github.com/oblique/create_ap for Create_ap
 
-!!!!!THIS IS FOR EDUCATION PURPOSE ONLY!!!!!
+### !!!!!THIS IS FOR EDUCATION PURPOSE ONLY!!!!!
