@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Wich by roach013</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Wich</h1>
+        <h2>Linux Networking Scripts And To Do Some Cool Stuffs Too :D</h2>
+        <a href="https://github.com/roach013/Wich" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="wich" class="anchor" href="#wich" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Wich</h1>
+
+<h2>
+<a id="linux-networking-scripts-and-to-do-some-cool-stuffs-too-d" class="anchor" href="#linux-networking-scripts-and-to-do-some-cool-stuffs-too-d" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Linux Networking Scripts And To Do Some Cool Stuffs Too :D</h2>
+
+<p>~~I Created This Project To Simplify Wireless LAN Pentesting...</p>
+
+<h2>
+<a id="functionalities" class="anchor" href="#functionalities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Functionalities:</h2>
+
+<p>~~Turn Wireless Managed Interface into Monitor Mode and vise-versa.</p>
+
+<p>~~Create Hosted Wireless Network.</p>
+
+<p>~~Capture Credentials on LAN.</p>
+
+<p>~~Jam Wireless Network Within Range.</p>
+
+<p>~~Recontruct Information From Pcap Dump </p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation:</h2>
+
+<h3>
+<a id="on-debian-based-distro" class="anchor" href="#on-debian-based-distro" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>~~on Debian based distro:</h3>
+
+<pre><code>git clone https://github.com/roach013/Wich.git
+sudo apt-get update
+sudo dpkg-deb --build Wich
+sudo dpkg -i Wich.deb
+sudo apt-get install -f
+</code></pre>
+
+<h3>
+<a id="on-nix-based-distro" class="anchor" href="#on-nix-based-distro" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>~~on *.nix based distro:</h3>
+
+<pre><code>git clone https://github.com/roach013/Wich.git
+cd Wich/
+sudo chmod +x ./install.sh
+sudo sh ./install.sh
+</code></pre>
+
+<h2>
+<a id="uninstallation" class="anchor" href="#uninstallation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Uninstallation:</h2>
+
+<pre><code>cd Wich/
+sudo ./install.sh --uninstall
+</code></pre>
+
+<h2>
+<a id="usage-of-wich-by-roach-reznov" class="anchor" href="#usage-of-wich-by-roach-reznov" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage of Wich by Roach Reznov:</h2>
+
+<pre><code>Usage wich [OPTIONS] {PERAMETERS}
+    -1 or --man :   Put Given Interface Into Managed Mode
+    -2 or --mon :   Put Given Interface Into Monitor Mode
+    -3 or --host :  Start Hosted AP ('Wich --mas --help' For More Info)
+    -4 or --stop :  Stop Hosted AP ('wich --mas --help' For More Info)
+    -5 or --creds : To Capture Credentials On LAN ('wich --creds --help' For More Info)
+    -6 or --wifijam : To Jam All Wifi Signals In Range ('wich --wifijam --help' For More Info)
+    -7 or --cread : Recontruct Information From Pcap Dump ('wich --cread --help' For More Info)
+    -h or --help :  To Show This Help Test
+Examples :
+    To put into managed mode ...wich -1 'interface name'
+    To put into monitor mode ...wich -2 'interface name'
+    To put into master mode ...wich -3 'interface name' 'interface name' 'essid' 'password'
+    To stop hosted AP ...wich -4 'hosted interface name'
+    To capture credentials ...wich -5 -i 'interface name'
+    To jam wifi networks ...wich -6 -i 'interface name'
+</code></pre>
+
+<h3>
+<a id="thanks" class="anchor" href="#thanks" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Thanks:</h3>
+
+<p>~~To <a href="https://github.com/brendangregg/Chaosreader">https://github.com/brendangregg/Chaosreader</a> for Chaosreader</p>
+
+<p>~~To <a href="https://github.com/oblique/create_ap">https://github.com/oblique/create_ap</a> for Create_ap</p>
+
+<h3>
+<a id="this-is-for-education-purpose-only" class="anchor" href="#this-is-for-education-purpose-only" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>!!!!!THIS IS FOR EDUCATION PURPOSE ONLY!!!!!</h3>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/roach013/Wich/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/roach013/Wich/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/roach013/Wich"></a> is maintained by <a href="https://github.com/roach013">roach013</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
