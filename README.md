@@ -20,7 +20,7 @@
 
 ## Installation:
 
-  ~~on Debian based distro:
+  ~~On Debian based distro:
 
     git clone https://github.com/roach013/Wich.git
     sudo apt-get update
@@ -28,12 +28,12 @@
     sudo dpkg -i Wich.deb
     sudo apt-get install -f
 
-  ~~alt Debian install:
+  ~~Alt install on Debian based distro:
 
     git clone https://github.com/roach013/Wich.git
     cd Wich/
     sudo chmod +x ./install.sh
-    sudo sh ./install.sh
+    sudo sh ./install.sh --install
 
   ~~On *.nix based distro:
 
