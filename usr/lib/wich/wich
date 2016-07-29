@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#Wich Script Created By Roach Reznov!
+
+# Additional Requirements
+#  bash: To run this script
+#  hostapd: To host a wireless hotspot
+#  haveged: To collect entropy and feed into random pool
+#  net-tools: You probably have them installed
+
+
+function usage(){
+	echo "Wich script by Roach"
+	echo "	Usage wich [OPTIONS] {PERAMETERS}"
+	echo "		-1 or --man :	Put Given Interface Into Managed Mode"
+	echo "		-2 or --mon :	Put Given Interface Into Monitor Mode"
+	echo "		-3 or --host :	Start Hosted AP ('Wich --host --help' For More Info)"
+	echo "		-4 or --stop :	Stop Hosted AP"
+	echo "		-5 or --creds : To Capture Credentials On LAN ('wich --creds --help' For More Info)"
+	echo "		-6 or --wifijam : To Jam All Wifi Signals In Range ('wich --wifijam --help' For More Info)"
+	echo "		-7 or --cread :	Recontruct Information and Images From Pcap Dump ('wich --cread --help' For More Info)"
+	echo "		-h or --help :	To Show This Help Test"
+	echo "	Examples :"
+	echo "		To put into managed mode ...wich -1 'interface name'"
+	echo "		To put into monitor mode ...wich -2 'interface name'"
+	echo "		To put into master mode ...wich -3 'interface name' 'interface name' 'essid' 'password'"
+	echo "		To stop hosted AP ...wich -4 'hosted interface name'"
+	echo "		To capture credentials ...wich -5 -i 'interface name'"
+	echo "		To jam wifi networks ...wich -6 -i 'interface name'"
+	echo "		To extract info/images from pcap ...wich -7 'pcap dump'"
+}
+
+function manm(){
+	sudo /sbin/ifconfig $1 down;
+	sudo /usr/lib/wich/macspoof -r $1;
+	sudo /sbin/iwconfig $1 mode managed;
+	sudo /sbin/ifconfig $1 up;
+	sudo service network-manager restart;
+	tput bold;
+	echo "Managed mode enabled on $1"
+}
+
+function monm(){
+	sudo /sbin/ifconfig $1 down;
+	sudo /usr/lib/wich/macspoof -r $1;
+	sudo /sbin/iwconfig $1 mode monitor:
+	sudo /sbin/ifconfig $1 up;
+	sudo service network-manager stop
+	tput bold;
+	echo "Monitor mode enabled on $1"
+}
+
+function mas(){
+	sudo /usr/lib/wich/hostap --daemon $1 $2 $3 $4 $5 $6 $7 $8 $9
+}
+
+function masstop(){
+	sudo /usr/lib/wich/hostap --stop $1
+}
+
+function creds(){
+	sudo /usr/lib/wich/creds $1 $2 $3 $4 $5 $6 $7 $8 $9
+}
+
+function wifijam(){
+	sudo /usr/lib/wich/wifijam $1 $2 $3 $4 $5 $6 $7 $8 $9
+}
+
+case $1 in
+	-h|--help) usage; exit 0;;
+	-1|--man) manm $2 $3 $4 $5 $6 $7 $8 $9; exit 0;;
+	-2|--mon) monm $2 $3 $4 $5 $6 $7 $8 $9; exit 0;;
+	-3|--host) mas $2 $3 $4 $5 $6 $7 $8 $9; exit 0;;
+	-4|--stop) masstop $2 $3 $4 $5 $6 $7 $8 $9; exit 0;;
+	-5|--creds) creds $2 $3 $4 $5 $6 $7 $8 $9; exit 0;;
+	-6|--wifijam) wifijam $2 $3 $4 $5 $6 $7 $8 $9; exit 0;;
+	-7|--cread) cread $2 $3 $4 $5 $6 $7 $8 $9;exit 0;;
+	*) echo "Uknown command '$1' type 'wich --help' for help!"; exit 125;;
+esac
+
+#DONE! :D

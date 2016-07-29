@@ -7315,8 +7315,7 @@ sub Usage {
 # Usage Full - print command usage and exit.
 #
 sub Usage_Full {
-        print "Version 0.95i, 14-Apr-2014
-
+        print "
 USAGE: wich --cread [-adehiknqrvxAHIRTUXY] [-D dir]
                    [-b port[,...]] [-B port[,...]]
                    [-j IPaddr[,...]] [-J IPaddr[,...]]
