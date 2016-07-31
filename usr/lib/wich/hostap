@@ -46,24 +46,26 @@ usage() {
     echo "  --hostapd-debug <level> With level between 1 and 2, passes arguments -d or -dd to hostapd for debugging."
     echo "  --isolate-clients       Disable communication between clients"
     echo "  --ieee80211n            Enable IEEE 802.11n (HT)"
+    echo "  --ieee80211ac           Enable IEEE 802.11ac (VHT)"
     echo "  --ht_capab <HT>         HT capabilities (default: [HT40+])"
+    echo "  --vht_capab <VHT>       VHT capabilities"
     echo "  --country <code>        Set two-letter country code for regularity (example: US)"
     echo "  --freq-band <GHz>       Set frequency band. Valid inputs: 2.4, 5 (default: 2.4)"
     echo "  --driver                Choose your WiFi adapter driver (default: nl80211)"
     echo "  --no-virt               Do not create virtual interface"
     echo "  --no-haveged            Do not run 'haveged' automatically when needed"
     echo "  --fix-unmanaged         If NetworkManager shows your interface as unmanaged after you"
-    echo "                          close create_ap, then use this option to switch your interface"
+    echo "                          close wich, then use this option to switch your interface"
     echo "                          back to managed"
     echo "  --mac <MAC>             Set MAC address"
     echo "  --dhcp-dns <IP1[,IP2]>  Set DNS returned by DHCP"
-    echo "  --daemon                Run create_ap in the background"
-    echo "  --stop <id>             Send stop command to an already running create_ap. For an <id>"
-    echo "                          you can put the PID of create_ap or the WiFi interface. You can"
+    echo "  --daemon                Run wich in the background"
+    echo "  --stop <id>             Send stop command to an already running wich. For an <id>"
+    echo "                          you can put the PID of wich or the WiFi interface. You can"
     echo "                          get them with --list-running"
-    echo "  --list-running          Show the create_ap processes that are already running"
-    echo "  --list-clients <id>     List the clients connected to create_ap instance associated with <id>."
-    echo "                          For an <id> you can put the PID of create_ap or the WiFi interface."
+    echo "  --list-running          Show the wich processes that are already running"
+    echo "  --list-clients <id>     List the clients connected to wich instance associated with <id>."
+    echo "                          For an <id> you can put the PID of wich or the WiFi interface."
     echo "                          If virtual WiFi interface was created, then use that one."
     echo "                          You can get them with --list-running"
     echo "  --mkconfig <conf_file>  Store configs in conf_file"
@@ -89,7 +91,7 @@ usage() {
     echo "  wich --host wlan0 wlan0 MyAccessPoint MyPassPhrase"
     echo "  wich --host -n wlan0 MyAccessPoint MyPassPhrase"
     echo "  wich --host -m bridge wlan0 eth0 MyAccessPoint MyPassPhrase"
-    echo "  wich --host -m bridge wlan0 br0 MyAccessPoint MyPassPhrase"
+    echo "  wich --hostwich --host -m bridge wlan0 br0 MyAccessPoint MyPassPhrase"
     echo "  wich --host --driver rtl871xdrv wlan0 eth0 MyAccessPoint MyPassPhrase"
     echo "  wich --host --daemon wlan0 eth0 MyAccessPoint MyPassPhrase"
     echo "  wich --host --stop wlan0"
@@ -142,7 +144,7 @@ init_lock() {
     return $?
 }
 
-# recursive mutex lock for all create_ap processes
+# recursive mutex lock for all wich processes
 mutex_lock() {
     local counter_mutex_fd
     local counter
@@ -168,7 +170,7 @@ mutex_lock() {
     return 0
 }
 
-# recursive mutex unlock for all create_ap processes
+# recursive mutex unlock for all wich processes
 mutex_unlock() {
     local counter_mutex_fd
     local counter
@@ -601,7 +603,9 @@ HIDDEN=0
 ISOLATE_CLIENTS=0
 SHARE_METHOD=nat
 IEEE80211N=0
+IEEE80211AC=0
 HT_CAPAB='[HT40+]'
+VHT_CAPAB=
 DRIVER=nl80211
 NO_VIRT=0
 COUNTRY=
@@ -615,7 +619,7 @@ HOSTAPD_DEBUG_ARGS=
 REDIRECT_TO_LOCALHOST=0
 
 CONFIG_OPTS=(CHANNEL GATEWAY WPA_VERSION ETC_HOSTS DHCP_DNS NO_DNS HIDDEN ISOLATE_CLIENTS SHARE_METHOD
-             IEEE80211N HT_CAPAB DRIVER NO_VIRT COUNTRY FREQ_BAND
+             IEEE80211N IEEE80211AC HT_CAPAB VHT_CAPAB DRIVER NO_VIRT COUNTRY FREQ_BAND
              NEW_MACADDR DAEMONIZE NO_HAVEGED WIFI_IFACE INTERNET_IFACE
              SSID PASSPHRASE USE_PSK)
 
@@ -671,7 +675,7 @@ _cleanup() {
         rm -f $COMMON_CONFDIR/${INTERNET_IFACE}_forwarding
     fi
 
-    # if we are the last create_ap instance then set back the common values
+    # if we are the last wich instance then set back the common values
     if ! has_running_instance; then
         # kill common processes
         for x in $COMMON_CONFDIR/*.pid; do
@@ -697,9 +701,9 @@ _cleanup() {
 
     if [[ "$SHARE_METHOD" != "none" ]]; then
         if [[ "$SHARE_METHOD" == "nat" ]]; then
-            iptables -t nat -D POSTROUTING -o ${INTERNET_IFACE} -s ${GATEWAY%.*}.0/24 -j MASQUERADE
-            iptables -D FORWARD -i ${WIFI_IFACE} -s ${GATEWAY%.*}.0/24 -j ACCEPT
-            iptables -D FORWARD -i ${INTERNET_IFACE} -d ${GATEWAY%.*}.0/24 -j ACCEPT
+            iptables -w -t nat -D POSTROUTING -o ${INTERNET_IFACE} -s ${GATEWAY%.*}.0/24 -j MASQUERADE
+            iptables -w -D FORWARD -i ${WIFI_IFACE} -s ${GATEWAY%.*}.0/24 -j ACCEPT
+            iptables -w -D FORWARD -i ${INTERNET_IFACE} -d ${GATEWAY%.*}.0/24 -j ACCEPT
         elif [[ "$SHARE_METHOD" == "bridge" ]]; then
             if ! is_bridge_interface $INTERNET_IFACE; then
                 ip link set dev $BRIDGE_IFACE down
@@ -740,9 +744,15 @@ _cleanup() {
     fi
 
     if [[ "$SHARE_METHOD" != "bridge" ]]; then
-        iptables -D INPUT -p tcp -m tcp --dport 53 -j ACCEPT
-        iptables -D INPUT -p udp -m udp --dport 53 -j ACCEPT
-        iptables -D INPUT -p udp -m udp --dport 67 -j ACCEPT
+        if [[ $NO_DNS -eq 0 ]]; then
+            iptables -w -D INPUT -p tcp -m tcp --dport 5353 -j ACCEPT
+            iptables -w -D INPUT -p udp -m udp --dport 5353 -j ACCEPT
+            iptables -w -t nat -D PREROUTING -s ${GATEWAY%.*}.0/24 -d ${GATEWAY} \
+                -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 5353
+            iptables -w -t nat -D PREROUTING -s ${GATEWAY%.*}.0/24 -d ${GATEWAY} \
+                -p udp -m udp --dport 53 -j REDIRECT --to-ports 5353
+        fi
+        iptables -w -D INPUT -p udp -m udp --dport 67 -j ACCEPT
     fi
 
     if [[ $NO_VIRT -eq 0 ]]; then
@@ -1002,7 +1012,7 @@ for ((i=0; i<$#; i++)); do
     fi
 done
 
-GETOPT_ARGS=$(getopt -o hc:w:g:dnm: -l "help","hidden","hostapd-debug:","redirect-to-localhost","isolate-clients","ieee80211n","ht_capab:","driver:","no-virt","fix-unmanaged","country:","freq-band:","mac:","dhcp-dns:","daemon","stop:","list","list-running","list-clients:","version","psk","no-haveged","no-dns","mkconfig:","config:" -n "$PROGNAME" -- "$@")
+GETOPT_ARGS=$(getopt -o hc:w:g:dnm: -l "help","hidden","hostapd-debug:","redirect-to-localhost","isolate-clients","ieee80211n","ieee80211ac","ht_capab:","vht_capab:","driver:","no-virt","fix-unmanaged","country:","freq-band:","mac:","dhcp-dns:","daemon","stop:","list","list-running","list-clients:","version","psk","no-haveged","no-dns","mkconfig:","config:" -n "$PROGNAME" -- "$@")
 [[ $? -ne 0 ]] && exit 1
 eval set -- "$GETOPT_ARGS"
 
@@ -1057,9 +1067,18 @@ while :; do
             shift
             IEEE80211N=1
             ;;
+        --ieee80211ac)
+            shift
+            IEEE80211AC=1
+            ;;
         --ht_capab)
             shift
             HT_CAPAB="$1"
+            shift
+            ;;
+        --vht_capab)
+            shift
+            VHT_CAPAB="$1"
             shift
             ;;
         --driver)
@@ -1273,8 +1292,15 @@ if ! can_be_sta_and_ap ${WIFI_IFACE}; then
     fi
 fi
 
+HOSTAPD=$(which hostapd)
+
+if [[ ! -x "$HOSTAPD" ]]; then
+    echo "ERROR: hostapd not found." >&2
+    exit 1
+fi
+
 if [[ $(get_adapter_kernel_module ${WIFI_IFACE}) =~ ^(8192[cd][ue]|8723a[sue])$ ]]; then
-    if ! strings $(which hostapd) | grep -m1 rtl871xdrv > /dev/null 2>&1; then
+    if ! strings "$HOSTAPD" | grep -m1 rtl871xdrv > /dev/null 2>&1; then
         echo "ERROR: You need to patch your hostapd with rtl871xdrv patches." >&2
         exit 1
     fi
@@ -1484,7 +1510,7 @@ if [[ $NO_VIRT -eq 0 ]]; then
        Try again with --no-virt."
     echo -n "Creating a virtual WiFi interface... "
 
-    if iw dev ${WIFI_IFACE} interface add ${VWIFI_IFACE} type managed; then
+    if iw dev ${WIFI_IFACE} interface add ${VWIFI_IFACE} type __ap; then
         # now we can call networkmanager_wait_until_unmanaged
         networkmanager_is_running && [[ $NM_OLDER_VERSION -eq 0 ]] && networkmanager_wait_until_unmanaged ${VWIFI_IFACE}
         echo "${VWIFI_IFACE} created."
@@ -1505,6 +1531,10 @@ mutex_lock
 echo $WIFI_IFACE > $CONFDIR/wifi_iface
 chmod 444 $CONFDIR/wifi_iface
 mutex_unlock
+
+if [[ -n "$COUNTRY" && $USE_IWCONFIG -eq 0 ]]; then
+    iw reg set "$COUNTRY"
+fi
 
 can_transmit_to_channel ${WIFI_IFACE} ${CHANNEL} || die "Your adapter can not transmit to channel ${CHANNEL}, frequency band ${FREQ_BAND}GHz."
 
@@ -1536,9 +1566,11 @@ ignore_broadcast_ssid=$HIDDEN
 ap_isolate=$ISOLATE_CLIENTS
 EOF
 
-if [[ -n $COUNTRY ]]; then
-    [[ $USE_IWCONFIG -eq 0 ]] && iw reg set $COUNTRY
-    echo "country_code=${COUNTRY}" >> $CONFDIR/hostapd.conf
+if [[ -n "$COUNTRY" ]]; then
+    cat << EOF >> $CONFDIR/hostapd.conf
+country_code=${COUNTRY}
+ieee80211d=1
+EOF
 fi
 
 if [[ $FREQ_BAND == 2.4 ]]; then
@@ -1550,9 +1582,20 @@ fi
 if [[ $IEEE80211N -eq 1 ]]; then
     cat << EOF >> $CONFDIR/hostapd.conf
 ieee80211n=1
-wmm_enabled=1
 ht_capab=${HT_CAPAB}
 EOF
+fi
+
+if [[ $IEEE80211AC -eq 1 ]]; then
+    echo "ieee80211ac=1" >> $CONFDIR/hostapd.conf
+fi
+
+if [[ -n "$VHT_CAPAB" ]]; then
+    echo "vht_capab=${VHT_CAPAB}" >> $CONFDIR/hostapd.conf
+fi
+
+if [[ $IEEE80211N -eq 1 ]] || [[ $IEEE80211AC -eq 1 ]]; then
+    echo "wmm_enabled=1" >> $CONFDIR/hostapd.conf
 fi
 
 if [[ -n "$PASSPHRASE" ]]; then
@@ -1623,9 +1666,9 @@ fi
 if [[ "$SHARE_METHOD" != "none" ]]; then
     echo "Sharing Internet using method: $SHARE_METHOD"
     if [[ "$SHARE_METHOD" == "nat" ]]; then
-        iptables -t nat -I POSTROUTING -o ${INTERNET_IFACE} -s ${GATEWAY%.*}.0/24 -j MASQUERADE || die
-        iptables -I FORWARD -i ${WIFI_IFACE} -s ${GATEWAY%.*}.0/24 -j ACCEPT || die
-        iptables -I FORWARD -i ${INTERNET_IFACE} -d ${GATEWAY%.*}.0/24 -j ACCEPT || die
+        iptables -w -t nat -I POSTROUTING -o ${INTERNET_IFACE} -s ${GATEWAY%.*}.0/24 -j MASQUERADE || die
+        iptables -w -I FORWARD -i ${WIFI_IFACE} -s ${GATEWAY%.*}.0/24 -j ACCEPT || die
+        iptables -w -I FORWARD -i ${INTERNET_IFACE} -d ${GATEWAY%.*}.0/24 -j ACCEPT || die
         echo 1 > /proc/sys/net/ipv4/conf/$INTERNET_IFACE/forwarding || die
         echo 1 > /proc/sys/net/ipv4/ip_forward || die
         # to enable clients to establish PPTP connections we must
@@ -1708,13 +1751,17 @@ fi
 # start dhcp + dns (optional)
 if [[ "$SHARE_METHOD" != "bridge" ]]; then
     if [[ $NO_DNS -eq 0 ]]; then
-        DNS_PORT=53
-        iptables -I INPUT -p tcp -m tcp --dport $DNS_PORT -j ACCEPT || die
-        iptables -I INPUT -p udp -m udp --dport $DNS_PORT -j ACCEPT || die
+        DNS_PORT=5353
+        iptables -w -I INPUT -p tcp -m tcp --dport $DNS_PORT -j ACCEPT || die
+        iptables -w -I INPUT -p udp -m udp --dport $DNS_PORT -j ACCEPT || die
+        iptables -w -t nat -I PREROUTING -s ${GATEWAY%.*}.0/24 -d ${GATEWAY} \
+            -p tcp -m tcp --dport 53 -j REDIRECT --to-ports $DNS_PORT || die
+        iptables -w -t nat -I PREROUTING -s ${GATEWAY%.*}.0/24 -d ${GATEWAY} \
+            -p udp -m udp --dport 53 -j REDIRECT --to-ports $DNS_PORT || die
     else
         DNS_PORT=0
     fi
-    iptables -I INPUT -p udp -m udp --dport 67 -j ACCEPT || die
+    iptables -w -I INPUT -p udp -m udp --dport 67 -j ACCEPT || die
 
     if which complain > /dev/null 2>&1; then
         # openSUSE's apparmor does not allow dnsmasq to read files.
@@ -1735,8 +1782,8 @@ if [[ $NO_HAVEGED -eq 0 ]]; then
     HAVEGED_WATCHDOG_PID=$!
 fi
 
-# start hostapd (use stdbuf for no delayed output in porgrams that redirect stdout)
-stdbuf -oL hostapd $HOSTAPD_DEBUG_ARGS $CONFDIR/hostapd.conf &
+# start hostapd (use stdbuf for no delayed output in programs that redirect stdout)
+stdbuf -oL $HOSTAPD $HOSTAPD_DEBUG_ARGS $CONFDIR/hostapd.conf &
 HOSTAPD_PID=$!
 echo $HOSTAPD_PID > $CONFDIR/hostapd.pid
 
