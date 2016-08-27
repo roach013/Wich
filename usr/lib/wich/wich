@@ -33,46 +33,55 @@ usage(){
 }
 
 manm(){
-	sudo /sbin/ifconfig $1 down;
-	sudo /usr/lib/wich/macspoof -A $1 2> /dev/null;
-	if (( $? != 0 )); then
-		tput bold;
-		echo "[Error]: Device busy or not present!";
-		exit 125;
+	if (( -z $1 )); then echo "Please enter wireless interface!"; exit 125;
 	else
-		sudo /sbin/iwconfig $1 mode managed;
-		sudo /sbin/ifconfig $1 up;
-		sudo service network-manager restart;
-		tput bold;
-		echo "Managed mode enabled on $1"
+		sudo /sbin/ifconfig $1 down;
+		sudo /usr/lib/wich/macspoof -A $1 2> /dev/null;
+		if (( $? != 0 )); then
+			tput bold;
+			echo "[Error]: Device busy or not present!";
+			exit 125;
+		else
+			sudo /sbin/iwconfig $1 mode managed;
+			sudo /sbin/ifconfig $1 up;
+			sudo service network-manager restart;
+			tput bold;
+			echo "Managed mode enabled on $1"
+		fi
 	fi
 }
 
 monm(){
-	sudo /sbin/ifconfig $1 down;
-	sudo /usr/lib/wich/macspoof -A $1 2> /dev/null;
-	if (( $? != 0 )); then
-		tput bold;
-		echo "[Error]: Device busy or not present!";
-		exit 125;
+	if (( -z $1 )); then echo "Please enter wireless interface!"; exit 125;
 	else
-		sudo /sbin/iwconfig $1 mode monitor:
-		sudo /sbin/ifconfig $1 up;
-		sudo service network-manager stop
-		tput bold;
-		echo "Monitor mode enabled on $1"
+		sudo /sbin/ifconfig $1 down;
+		sudo /usr/lib/wich/macspoof -A $1 2> /dev/null;
+		if (( $? != 0 )); then
+			tput bold;
+			echo "[Error]: Device busy or not present!";
+			exit 125;
+		else
+			sudo /sbin/iwconfig $1 mode monitor:
+			sudo /sbin/ifconfig $1 up;
+			sudo service network-manager stop
+			tput bold;
+			echo "Monitor mode enabled on $1"
+		fi
 	fi
 }
 
 rand(){
-	sudo /sbin/ifconfig $1 down;
-	sudo /usr/lib/wich/macspoof -r $1 2> /dev/null;
-	if (( $? != 0 )); then
-		tput bold;
-		echo "[Error]: Device busy or not present!";
-		exit 125;
+	if (( -z $1 )); then echo "Please enter wireless interface!"; exit 125;
 	else
-		sudo /sbin/ifconfig $1 up;
+		sudo /sbin/ifconfig $1 down;
+		sudo /usr/lib/wich/macspoof -r $1 2> /dev/null;
+		if (( $? != 0 )); then
+			tput bold;
+			echo "[Error]: Device busy or not present!";
+			exit 125;
+		else
+			sudo /sbin/ifconfig $1 up;
+		fi
 	fi
 }
 
